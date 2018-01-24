@@ -249,4 +249,26 @@ describe('Block test', () => {
         'bemboo->block2__element2--mod-ifier2'
     )
   })
+  it('does nothing on m with nullish', () => {
+    expect(block('block').m({}).s).toEqual('block')
+    expect(block('block').m().s).toEqual('block')
+    expect(block('block').m(null).s).toEqual('block')
+  })
+  it('does nothing on mix with nullish', () => {
+    expect(
+      block('block')
+        .mix()
+        .m({ modifier: true }).s
+    ).toEqual('block block--modifier')
+    expect(
+      block('block')
+        .mix(null, void 0)
+        .m({ modifier: true }).s
+    ).toEqual('block block--modifier')
+    expect(
+      block('block')
+        .mix(null, 'mix', void 0)
+        .m({ modifier: true }).s
+    ).toEqual('block block--modifier mix mix--modifier')
+  })
 })

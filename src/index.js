@@ -31,22 +31,24 @@ export class Block {
     return this.copy({
       modifier: {
         ...this.modifier,
-        ...modifier,
+        ...(modifier || {}),
       },
       mixed: this.mixed.map(b => b.m(modifier)),
     })
   }
 
-  mix(...block) {
+  mix(...blocks) {
     return this.copy({
       mixed: [
         ...this.mixed,
-        ...block.map(
-          blockOrString =>
-            typeof blockOrString === 'string'
-              ? new Block(blockOrString)
-              : blockOrString
-        ),
+        ...blocks
+          .map(
+            blockOrString =>
+              typeof blockOrString === 'string'
+                ? new Block(blockOrString)
+                : blockOrString
+          )
+          .filter(i => i),
       ],
     })
   }

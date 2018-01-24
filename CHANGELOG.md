@@ -1,3 +1,7 @@
+### [1.0.1](https://github.com/Kozea/redux-api-unrest/compare/v1.0.0...v1.0.1)
+
+* Filter out bad m/mix values.
+
 # [1.0.0](https://github.com/Kozea/redux-api-unrest/compare/v0.0.2...v1.0.0)
 
 * Settings support. (`namespace`, `elementDelimiter`, `modifierDelimiter`, `modifierValueDelimiter`).
