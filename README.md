@@ -29,3 +29,77 @@ will generates if active is true:
   </article>
 </section>
 ```
+
+## Api
+
+Default export is function `block` that return a new `Block` instance.
+
+A `blockMaker` function is also exported, this function takes a settings mapping and return a block function using these settings.
+
+The `Block` class (which is also exported) exposes the following functions / attributes:
+
+### constructor(block, element = null, modifier = {}, mixed = [], settings = {})
+Initialize the Block object. Only block argument is meant to be used externally.
+
+### e(element)
+Add element to a new instance of this `Block` and returns it. Can only be set once per `Block` instance.
+`element` argument is a string.
+
+### m(modifier)
+Add modifier to a new instance of this `Block` and returns it. Can be used more than once, modifier are merged.
+`modifier` is a mapping of modifier -> values. If the value is false the modifier will be ignored, if the value is true it will generate a `--modifier` and if the value is truthy or 0 a `--modifier-value`. This modifier will be applied to all already mixed blocks.
+
+### mix(...blocks)
+This fuction can mix other blocks with this `Block` instance and return a new instance with both blocks.
+`blocks` arguments can be `Block` instances or strings.
+
+### s
+The generated string (which is also returned by `toString()`)
+
+
+## Features
+```es6
+// Usage
+> const b = block('block')
+> b.toString()
+'block'
+> b.s
+'block'
+
+// For the following evaluations an implicit toString() is implied:
+
+> b.e('element')
+'block__element'
+
+> b.e('element').m({ modifier: true })
+'block__element block__element--modifier'
+
+> b.e('element').m({ modifier: true }).m({ hidden: false, no: 8 })
+'block__element block__element--modifier block__element--no-8'
+
+> b.e('element').mix('main')
+'block__element main'
+
+> b.e('element').mix(block('main'))
+'block__element main'
+
+> b.e('element').m({ modifier: true }).mix('main')
+'block__element block__element--modifier main'
+
+> b.e('element').mix('main').m({ modifier: true })
+'block__element block__element--modifier main main--modifier'
+
+> b.mix('main', 'header').mix('principal')
+'block main header principal'
+
+// blockMaker allow you to change the default settings:
+const block12 = blockMaker({
+  namespace: 'bemboo->',
+  elementDelimiter: '@',
+  modifierDelimiter: '#',
+  modifierValueDelimiter: '/',
+})
+
+> block2('block2').e('element2').m({ modifier2: true, mod: 'ifier2' }).s
+'bemboo->block2@element2 bemboo->block2@element2#modifier2 bemboo->block2@element2#mod/ifier2'
+```
