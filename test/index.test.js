@@ -83,4 +83,41 @@ describe('Block test', () => {
       'block__element block__element--active block__element--type-small'
     )
   })
+  it('can mix blocks', () => {
+    expect(block('block').mix(block('mix')).s).toEqual('block mix')
+    expect(block('block').mix(block('mix').mix(block('max'))).s).toEqual(
+      'block mix max'
+    )
+    expect(
+      block('block')
+        .mix(block('mix').mix(block('min')))
+        .mix(block('max')).s
+    ).toEqual('block mix min max')
+    expect(
+      block('block')
+        .e('element')
+        .mix(block('mix')).s
+    ).toEqual('block__element mix')
+    expect(block('block').mix(block('mix').e('mixed')).s).toEqual(
+      'block mix__mixed'
+    )
+  })
+  it('can mix blocks and apply modifier to all', () => {
+    expect(
+      block('block')
+        .mix(block('mix'))
+        .m({ active: true }).s
+    ).toEqual('block block--active mix mix--active')
+    expect(block('block').mix(block('mix').m({ active: true })).s).toEqual(
+      'block mix mix--active'
+    )
+    expect(
+      block('block')
+        .mix(block('mix').mix(block('min')))
+        .mix(block('max'))
+        .m({ active: true }).s
+    ).toEqual(
+      'block block--active mix mix--active min min--active max max--active'
+    )
+  })
 })

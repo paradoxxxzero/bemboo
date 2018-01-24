@@ -1,7 +1,7 @@
 {
   "name": "bemboo",
   "version": "0.0.1",
-  "description": "A bem generator based on object for React 16 use.",
+  "description": "A bem generator based on objects for React 16 use.",
   "main": "lib/index.js",
   "repository": "https://github.com/paradoxxxzero/bemboo",
   "author": "Florian Mounier",
