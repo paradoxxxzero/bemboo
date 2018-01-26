@@ -1,4 +1,10 @@
-## [1.1.1](https://github.com/Kozea/redux-api-unrest/compare/v1.1.0...v1.1.1)
+## [1.2.0](https://github.com/Kozea/redux-api-unrest/compare/v1.1.1...v1.2.0)
+
+* Raise on empty block
+* Remove class duplicates
+* Add a `sub` method to remove specific classes
+
+### [1.1.1](https://github.com/Kozea/redux-api-unrest/compare/v1.1.0...v1.1.1)
 
 * Support anonymous function and support naming them on the fly.
 

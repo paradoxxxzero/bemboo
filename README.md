@@ -98,6 +98,12 @@ The generated string (which is also returned by `toString()`)
 > b.mix('main', 'header').mix('principal')
 'block main header principal'
 
+> b.mix('main', 'header').m({ modifier: true})
+'block block--modifier main main--modifier header header--modifier'
+
+> b.mix('main', 'header').m({ modifier: true}).sub('header', 'main--modifier')
+'block block--modifier main header--modifier'
+
 // blockMaker allow you to change the default settings:
 const block12 = blockMaker({
   namespace: 'bemboo->',
@@ -106,7 +112,7 @@ const block12 = blockMaker({
   modifierValueDelimiter: '/',
 })
 
-> block2('block2').e('element2').m({ modifier2: true, mod: 'ifier2' }).s
+> block2('block2').e('element2').m({ modifier2: true, mod: 'ifier2' })
 'bemboo->block2@element2 bemboo->block2@element2#modifier2 bemboo->block2@element2#mod/ifier2'
 ```
 

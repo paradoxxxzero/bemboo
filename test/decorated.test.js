@@ -1,4 +1,4 @@
-import block from '../src'
+import block, { blockMaker } from '../src'
 
 describe('Block decoration test', () => {
   it('decorates function', () => {
@@ -41,8 +41,28 @@ describe('Block decoration test', () => {
     expect(DecoratedClass.prototype.b).toEqual(block('DecoratedClass'))
   })
   it('decorates anonymous function', () => {
+    const decoratedFun = block((b, { args }) => ({ b, args }))
+    expect(decoratedFun.name).toEqual('anonymous')
+    expect(decoratedFun({ args: 1 })).toEqual({
+      b: block('anonymous'),
+      args: 1,
+    })
+  })
+  it('decorates and name anonymous function', () => {
     const decoratedFun = block('fun', (b, { args }) => ({ b, args }))
     expect(decoratedFun.name).toEqual('fun')
     expect(decoratedFun({ args: 1 })).toEqual({ b: block('fun'), args: 1 })
+  })
+  it('decorates with blockMaker made block', () => {
+    const block2 = blockMaker({
+      elementDelimiter: '@',
+      modifierDelimiter: '#',
+      modifierValueDelimiter: '/',
+    })
+    const decoratedFun = block2(function fun(b) {
+      return b.e('oh').m({ yeah: true }).s
+    })
+    expect(decoratedFun.name).toEqual('fun')
+    expect(decoratedFun()).toEqual('fun@oh fun@oh#yeah')
   })
 })

@@ -11,6 +11,9 @@ describe('Block test', () => {
     expect(block('block').e('element').s).toEqual('block__element')
     expect(new Block('block').e('').toString()).toEqual('block')
   })
+  it('raises on empty block', () => {
+    expect(() => block()).toThrow('A block must be named')
+  })
   it('raises on redefining block element', () => {
     expect(
       () =>
@@ -161,30 +164,34 @@ describe('Block test', () => {
   })
   it('respects settings', () => {
     expect(
-      block('block', void 0, void 0, void 0, { elementDelimiter: '@' }).m({
+      block('block', void 0, void 0, void 0, void 0, {
+        elementDelimiter: '@',
+      }).m({
         modifier: true,
         mod: 'ifier',
       }).s
     ).toEqual('block block--modifier block--mod-ifier')
     expect(
-      block('block', void 0, void 0, void 0, { elementDelimiter: '@' })
+      block('block', void 0, void 0, void 0, void 0, { elementDelimiter: '@' })
         .e('element')
         .m({ modifier: true, mod: 'ifier' }).s
     ).toEqual('block@element block@element--modifier block@element--mod-ifier')
     expect(
-      block('block', void 0, void 0, void 0, { modifierDelimiter: '#' })
+      block('block', void 0, void 0, void 0, void 0, { modifierDelimiter: '#' })
         .e('element')
         .m({ modifier: true, mod: 'ifier' }).s
     ).toEqual('block__element block__element#modifier block__element#mod-ifier')
     expect(
-      block('block', void 0, void 0, void 0, { modifierValueDelimiter: '/' })
+      block('block', void 0, void 0, void 0, void 0, {
+        modifierValueDelimiter: '/',
+      })
         .e('element')
         .m({ modifier: true, mod: 'ifier' }).s
     ).toEqual(
       'block__element block__element--modifier block__element--mod/ifier'
     )
     expect(
-      block('block', void 0, void 0, void 0, {
+      block('block', void 0, void 0, void 0, void 0, {
         elementDelimiter: '@',
         modifierDelimiter: '#',
       })
@@ -192,7 +199,7 @@ describe('Block test', () => {
         .m({ modifier: true, mod: 'ifier' }).s
     ).toEqual('block@element block@element#modifier block@element#mod-ifier')
     expect(
-      block('block', void 0, void 0, void 0, {
+      block('block', void 0, void 0, void 0, void 0, {
         elementDelimiter: '@',
         modifierValueDelimiter: '/',
       })
@@ -200,7 +207,7 @@ describe('Block test', () => {
         .m({ modifier: true, mod: 'ifier' }).s
     ).toEqual('block@element block@element--modifier block@element--mod/ifier')
     expect(
-      block('block', void 0, void 0, void 0, {
+      block('block', void 0, void 0, void 0, void 0, {
         elementDelimiter: '@',
         modifierDelimiter: '#',
         modifierValueDelimiter: '/',
@@ -253,6 +260,66 @@ describe('Block test', () => {
     expect(block('block').m({}).s).toEqual('block')
     expect(block('block').m().s).toEqual('block')
     expect(block('block').m(null).s).toEqual('block')
+  })
+  it('never repeats same classes', () => {
+    expect(block('block').mix(block('block')).s).toEqual('block')
+    expect(block('block').mix(block('block').m({ modifier: true })).s).toEqual(
+      'block block--modifier'
+    )
+    expect(
+      block('block')
+        .m({ modifier: true })
+        .mix(block('block')).s
+    ).toEqual('block block--modifier')
+    expect(
+      block('block')
+        .mix(block('block'))
+        .m({ modifier: true }).s
+    ).toEqual('block block--modifier')
+  })
+  it('never repeats same classes', () => {
+    expect(block('block').mix(block('block')).s).toEqual('block')
+    expect(block('block').mix(block('block').m({ modifier: true })).s).toEqual(
+      'block block--modifier'
+    )
+    expect(
+      block('block')
+        .m({ modifier: true })
+        .mix(block('block')).s
+    ).toEqual('block block--modifier')
+    expect(
+      block('block')
+        .mix(block('block'))
+        .m({ modifier: true }).s
+    ).toEqual('block block--modifier')
+  })
+  it('correctly remove classes with sub', () => {
+    expect(block('block').mix(block('block')).s).toEqual('block')
+    expect(
+      block('block')
+        .e('element')
+        .m({ modifier: true })
+        .sub(block('block').e('element')).s
+    ).toEqual('block__element--modifier')
+    expect(
+      block('block')
+        .e('element')
+        .m({ modifier: true })
+        .sub('block__element').s
+    ).toEqual('block__element--modifier')
+    expect(
+      block('block')
+        .e('element')
+        .mix(block('block2'))
+        .m({ modifier: true })
+        .sub('block__element--modifier').s
+    ).toEqual('block__element block2 block2--modifier')
+    expect(
+      block('block')
+        .e('element')
+        .m({ modifier: true })
+        .sub('leme').s
+    ).toEqual('block__element block__element--modifier')
   })
   it('does nothing on mix with nullish', () => {
     expect(

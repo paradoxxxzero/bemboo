@@ -8,11 +8,22 @@ export const defaultSettings = {
 const coalesce = (...args) => args.find(arg => arg !== void 0)
 
 export class Block {
-  constructor(block, element = null, modifier = {}, mixed = [], settings = {}) {
+  constructor(
+    block,
+    element = null,
+    modifier = {},
+    mixed = [],
+    subs = [],
+    settings = {}
+  ) {
+    if (!block) {
+      throw new Error('A block must be named')
+    }
     this.block = block
     this.element = element
     this.modifier = modifier
     this.mixed = mixed
+    this.subs = subs
     this.settings = { ...defaultSettings, ...settings }
     // We probably want to use a getter but compat and all
     this.s = this.generate()
@@ -36,6 +47,11 @@ export class Block {
       mixed: this.mixed.map(b => b.m(modifier)),
     })
   }
+  sub(...subs) {
+    return this.copy({
+      subs: subs.join(' ').split(' '),
+    })
+  }
 
   mix(...blocks) {
     return this.copy({
@@ -53,12 +69,13 @@ export class Block {
     })
   }
 
-  copy({ block, element, modifier, mixed, settings }) {
+  copy({ block, element, modifier, mixed, subs, settings }) {
     return new Block(
       coalesce(block, this.block),
       coalesce(element, this.element),
       { ...coalesce(modifier, this.modifier) },
       [...coalesce(mixed, this.mixed)],
+      [...coalesce(subs, this.subs)],
       { ...coalesce(settings, this.settings) }
     )
   }
@@ -81,6 +98,10 @@ export class Block {
       )
       .filter(i => i)
       .concat(this.mixed.map(mixed => mixed.s))
+      .join(' ')
+      .split(' ')
+      .reduce((x, y) => (x.includes(y) ? x : [...x, y]), [])
+      .filter(x => !this.subs.includes(x))
       .join(' ')
   }
 
@@ -109,7 +130,7 @@ export const wrapClass = (fun, name, args) => {
   return fun
 }
 
-export const block = (...args) => {
+const block = (...args) => {
   let fun = null,
     name = null,
     extra = []
@@ -121,7 +142,7 @@ export const block = (...args) => {
     ;[name, fun, ...extra] = args
   } else if (args.length && typeof args[0] == 'function') {
     ;[fun, ...extra] = args
-    name = fun.name
+    name = fun.name || 'anonymous'
   }
   if (fun) {
     if (fun.prototype && fun.prototype.hasOwnProperty('render')) {
@@ -133,7 +154,7 @@ export const block = (...args) => {
 }
 
 export const blockMaker = settings => (...args) => {
-  args[4] = { ...(args[4] || {}), ...settings }
+  args[5] = { ...(args[5] || {}), ...settings }
   return block(...args)
 }
 
