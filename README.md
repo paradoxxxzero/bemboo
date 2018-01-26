@@ -1,4 +1,5 @@
 # bemboo
+
 ## b('block').e('element').m({ modifier: true })
 
 [![Build Status](https://travis-ci.org/paradoxxxzero/bemboo.svg?branch=master)](https://travis-ci.org/paradoxxxzero/bemboo)
@@ -9,19 +10,19 @@ A bem generator based on objects for React 16 use.
 ## React Usage
 
 ```es6
-import React from 'react'
 import block from 'bemboo'
+import React from 'react'
 
 const b = block('Component')
-export default (active) => (
+export default active => (
   <section className={b}>
-    <article className={b.e('element').m({active})}>
-      hello
-    </article>
+    <article className={b.e('element').m({ active })}>hello</article>
   </section>
 )
 ```
+
 will generates if active is true:
+
 ```html
 <section class="Component">
   <article class="Component__element Component__element--active">
@@ -39,25 +40,30 @@ A `blockMaker` function is also exported, this function takes a settings mapping
 The `Block` class (which is also exported) exposes the following functions / attributes:
 
 ### constructor(block, element = null, modifier = {}, mixed = [], settings = {})
+
 Initialize the Block object. Only block argument is meant to be used externally.
 
 ### e(element)
+
 Add element to a new instance of this `Block` and returns it. Can only be set once per `Block` instance.
 `element` argument is a string.
 
 ### m(modifier)
+
 Add modifier to a new instance of this `Block` and returns it. Can be used more than once, modifier are merged.
 `modifier` is a mapping of modifier -> values. If the value is false the modifier will be ignored, if the value is true it will generate a `--modifier` and if the value is truthy or 0 a `--modifier-value`. This modifier will be applied to all already mixed blocks.
 
 ### mix(...blocks)
+
 This fuction can mix other blocks with this `Block` instance and return a new instance with both blocks.
 `blocks` arguments can be `Block` instances or strings.
 
 ### s
+
 The generated string (which is also returned by `toString()`)
 
-
 ## Features
+
 ```es6
 // Usage
 > const b = block('block')
@@ -102,4 +108,39 @@ const block12 = blockMaker({
 
 > block2('block2').e('element2').m({ modifier2: true, mod: 'ifier2' }).s
 'bemboo->block2@element2 bemboo->block2@element2#modifier2 bemboo->block2@element2#mod/ifier2'
+```
+
+## Decorator
+
+### Functions
+
+```es6
+import block from 'bemboo'
+import React from 'react'
+
+export default block(function Component(b, { active }) {
+  return (
+    <section className={b}>
+      <article className={b.e('element').m({ active })}>hello</article>
+    </section>
+  )
+})
+```
+
+### Classes
+
+```es6
+import block from 'bemboo'
+import React from 'react'
+
+@block
+export default class Component extends React.Component {
+  render(b) {
+    return (
+      <section className={b}>
+        <article className={b.e('element').m({ active })}>hello</article>
+      </section>
+    )
+  }
+})
 ```

@@ -92,4 +92,22 @@ export class Block {
 export const blockMaker = settings => block =>
   new Block(block, void 0, void 0, void 0, settings)
 
-export default (...args) => new Block(...args)
+export default (...args) => {
+  if (args.length && typeof args[0] == 'function') {
+    const [fun] = args
+    if (fun.prototype.hasOwnProperty('render')) {
+      const block = new Block(fun.name, ...args.slice(1))
+      fun.prototype.b = block
+      const { render } = fun.prototype
+      fun.prototype.render = function(...cargs) {
+        return render.apply(this, [block, ...cargs])
+      }
+      return fun
+    }
+    const wrapper = (...fargs) =>
+      fun(new Block(fun.name, ...args.slice(1)), ...fargs)
+    Object.defineProperty(wrapper, 'name', { value: fun.name })
+    return wrapper
+  }
+  return new Block(...args)
+}
