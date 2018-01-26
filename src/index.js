@@ -89,25 +89,52 @@ export class Block {
   }
 }
 
-export const blockMaker = settings => block =>
-  new Block(block, void 0, void 0, void 0, settings)
+export const wrapFunction = (fun, name, args) =>
+  Object.defineProperty(
+    function(...fargs) {
+      // eslint-disable-next-line no-invalid-this
+      return fun.apply(this, [new Block(name, ...args), ...fargs])
+    },
+    'name',
+    { value: name }
+  )
 
-export default (...args) => {
-  if (args.length && typeof args[0] == 'function') {
-    const [fun] = args
-    if (fun.prototype.hasOwnProperty('render')) {
-      const block = new Block(fun.name, ...args.slice(1))
-      fun.prototype.b = block
-      const { render } = fun.prototype
-      fun.prototype.render = function(...cargs) {
-        return render.apply(this, [block, ...cargs])
-      }
-      return fun
+export const wrapClass = (fun, name, args) => {
+  const b = new Block(name, ...args.slice(1))
+  fun.prototype.b = b
+  const { render } = fun.prototype
+  fun.prototype.render = function(...cargs) {
+    return render.apply(this, [b, ...cargs])
+  }
+  return fun
+}
+
+export const block = (...args) => {
+  let fun = null,
+    name = null,
+    extra = []
+  if (
+    args.length > 1 &&
+    typeof args[0] == 'string' &&
+    typeof args[1] == 'function'
+  ) {
+    ;[name, fun, ...extra] = args
+  } else if (args.length && typeof args[0] == 'function') {
+    ;[fun, ...extra] = args
+    name = fun.name
+  }
+  if (fun) {
+    if (fun.prototype && fun.prototype.hasOwnProperty('render')) {
+      return wrapClass(fun, name, extra)
     }
-    const wrapper = (...fargs) =>
-      fun(new Block(fun.name, ...args.slice(1)), ...fargs)
-    Object.defineProperty(wrapper, 'name', { value: fun.name })
-    return wrapper
+    return wrapFunction(fun, name, extra)
   }
   return new Block(...args)
 }
+
+export const blockMaker = settings => (...args) => {
+  args[4] = { ...(args[4] || {}), ...settings }
+  return block(...args)
+}
+
+export default block

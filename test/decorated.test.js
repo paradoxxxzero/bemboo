@@ -40,4 +40,9 @@ describe('Block decoration test', () => {
     expect(decoratedInst.b).toEqual(block('DecoratedClass'))
     expect(DecoratedClass.prototype.b).toEqual(block('DecoratedClass'))
   })
+  it('decorates anonymous function', () => {
+    const decoratedFun = block('fun', (b, { args }) => ({ b, args }))
+    expect(decoratedFun.name).toEqual('fun')
+    expect(decoratedFun({ args: 1 })).toEqual({ b: block('fun'), args: 1 })
+  })
 })
