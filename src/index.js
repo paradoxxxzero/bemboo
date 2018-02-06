@@ -142,7 +142,7 @@ const block = (...args) => {
     ;[name, fun, ...extra] = args
   } else if (args.length && typeof args[0] == 'function') {
     ;[fun, ...extra] = args
-    name = fun.name || 'anonymous'
+    name = fun.displayName || fun.name || 'anonymous'
   }
   if (fun) {
     if (fun.prototype && fun.prototype.hasOwnProperty('render')) {

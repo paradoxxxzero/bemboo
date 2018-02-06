@@ -150,3 +150,7 @@ export default class Component extends React.Component {
   }
 })
 ```
+
+## Mangling
+
+These decorators use the `Component.displayName` or the `Component` `name` if it isn't set. If you are using a minifier that mangles the function/class names your bem class won't work (and probably be replaced with something like 't\_\_element'). Either disable mangling or use a babel plugin like [babel-plugin-add-react-static-displayname](https://github.com/paradoxxxzero/babel-plugin-add-react-static-displayname)
