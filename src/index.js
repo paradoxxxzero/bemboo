@@ -110,15 +110,19 @@ export class Block {
   }
 }
 
-export const wrapFunction = (fun, name, args) =>
-  Object.defineProperty(
-    function(...fargs) {
-      // eslint-disable-next-line no-invalid-this
-      return fun.apply(this, [new Block(name, ...args), ...fargs])
-    },
-    'name',
-    { value: name }
-  )
+export const wrapFunction = (fun, name, args) => {
+  const wrapped = function(...fargs) {
+    // eslint-disable-next-line no-invalid-this
+    return fun.apply(this, [new Block(name, ...args), ...fargs])
+  }
+  // Try to set name on function (might crash on all browsers)
+  try {
+    Object.defineProperty(wrapped, 'name', { value: name })
+  } catch (e) {
+    // pass
+  }
+  return wrapped
+}
 
 export const wrapClass = (fun, name, args) => {
   const b = new Block(name, ...args.slice(1))
