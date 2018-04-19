@@ -125,7 +125,7 @@ export const wrapFunction = (fun, name, args) => {
 }
 
 export const wrapClass = (fun, name, args) => {
-  const b = new Block(name, ...args.slice(1))
+  const b = new Block(name, ...args)
   fun.prototype.b = b
   const { render } = fun.prototype
   fun.prototype.render = function(...cargs) {
