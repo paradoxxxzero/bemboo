@@ -1,3 +1,7 @@
+## [1.3.3](https://github.com/Kozea/redux-api-unrest/compare/v1.3.2...v1.3.3)
+
+* Fix argument number for decorated class
+
 ## [1.3.2](https://github.com/Kozea/redux-api-unrest/compare/v1.3.1...v1.3.2)
 
 * Upgrade dependencies
