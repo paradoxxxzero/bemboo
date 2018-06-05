@@ -74,30 +74,40 @@ export class Block {
   }
 
   copy({ block, element, modifier, mixed, subs, settings }) {
-    const instance = new Block(
-      coalesce(block, this.block),
-      coalesce(element, this.element),
-      { ...coalesce(modifier, this.modifier) },
-      [...coalesce(mixed, this.mixed)],
-      [...coalesce(subs, this.subs)],
-      { ...coalesce(settings, this.settings) },
-      this.cache
-    )
+    const newArgs = {
+      block: coalesce(block, this.block),
+      element: coalesce(element, this.element),
+      modifier: { ...coalesce(modifier, this.modifier) },
+      mixed: [...coalesce(mixed, this.mixed)],
+      subs: [...coalesce(subs, this.subs)],
+      settings: { ...coalesce(settings, this.settings) },
+    }
+
     const incache = this.cache.find(
-      item =>
-        instance.block === item.block &&
-        instance.element === item.element &&
-        shallowEqual(instance.modifier, item.modifier) &&
-        shallowEqual(instance.mixed, item.mixed) &&
-        shallowEqual(instance.subs, item.subs) &&
-        shallowEqual(instance.settings, item.settings)
+      oldArgs =>
+        newArgs.block === oldArgs.block &&
+        newArgs.element === oldArgs.element &&
+        shallowEqual(newArgs.modifier, oldArgs.modifier) &&
+        shallowEqual(newArgs.mixed, oldArgs.mixed) &&
+        shallowEqual(newArgs.subs, oldArgs.subs) &&
+        shallowEqual(newArgs.settings, oldArgs.settings)
     )
 
     if (incache) {
       return incache
     }
-    this.cache.push(instance)
-    return instance
+
+    const newInstance = new Block(
+      newArgs.block,
+      newArgs.element,
+      newArgs.modifier,
+      newArgs.mixed,
+      newArgs.subs,
+      newArgs.settings,
+      this.cache
+    )
+    this.cache.push(newInstance)
+    return newInstance
   }
 
   generate() {
