@@ -45,5 +45,8 @@
       "parser": "babylon",
       "style": "module"
     }
+  },
+  "dependencies": {
+    "shallowequal": "^1.0.2"
   }
 }

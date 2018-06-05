@@ -338,4 +338,76 @@ describe('Block test', () => {
         .m({ modifier: true }).s
     ).toEqual('block block--modifier mix mix--modifier')
   })
+  it('preserves equality', () => {
+    const b = block('block')
+    /* eslint-disable no-self-compare */
+    expect(b === b).toBeTruthy()
+    expect(b === block('block')).toBeFalsy()
+    expect(b.toString() === b.toString()).toBeTruthy()
+    expect(b.toString() === block('block').toString()).toBeTruthy()
+    expect(b.e('element') === b.e('element')).toBeTruthy()
+    expect(b.e('element') === block('block').e('element')).toBeFalsy()
+    expect(
+      b.e('element').m({ modifier: true }) ===
+        b.e('element').m({ modifier: true })
+    ).toBeTruthy()
+    const b2 = block('block2')
+    expect(
+      b
+        .e('element')
+        .m({ modifier: true })
+        .mix(b2) ===
+        b
+          .e('element')
+          .m({ modifier: true })
+          .mix(b2)
+    ).toBeTruthy()
+    expect(
+      b
+        .e('element')
+        .m({ modifier: true })
+        .mix(b2.e('element2')) ===
+        b
+          .e('element')
+          .m({ modifier: true })
+          .mix(b2.e('element2'))
+    ).toBeTruthy()
+    expect(
+      b
+        .e('element')
+        .mix(b2)
+        .m({ modifier: true })
+        .sub('block__element--modifier') ===
+        b
+          .e('element')
+          .mix(b2)
+          .m({ modifier: true })
+          .sub('block__element--modifier')
+    ).toBeTruthy()
+    const b3 = blockMaker({
+      namespace: 'bemboo->',
+    })('block3')
+    expect(
+      b3.e('element').m({ modifier: true, mod: 'ifier' }) ===
+        b3.e('element').m({ modifier: true, mod: 'ifier' })
+    ).toBeTruthy()
+    const b4 = block('block4', void 0, void 0, void 0, void 0, {
+      elementDelimiter: '@',
+      modifierDelimiter: '#',
+      modifierValueDelimiter: '/',
+    })
+    expect(
+      b4
+        .e('element')
+        .mix(b2)
+        .m({ modifier: true })
+        .sub('block2@element#modifier') ===
+        b4
+          .e('element')
+          .mix(b2)
+          .m({ modifier: true })
+          .sub('block2@element#modifier')
+    ).toBeTruthy()
+    /* eslint-enable no-self-compare */
+  })
 })

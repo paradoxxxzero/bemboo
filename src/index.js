@@ -1,3 +1,5 @@
+import shallowEqual from 'shallowequal'
+
 export const defaultSettings = {
   namespace: '',
   elementDelimiter: '__',
@@ -14,7 +16,8 @@ export class Block {
     modifier = {},
     mixed = [],
     subs = [],
-    settings = {}
+    settings = {},
+    cache = []
   ) {
     if (!block) {
       throw new Error('A block must be named')
@@ -25,6 +28,7 @@ export class Block {
     this.mixed = mixed
     this.subs = subs
     this.settings = { ...defaultSettings, ...settings }
+    this.cache = cache
     // We probably want to use a getter but compat and all
     this.s = this.generate()
   }
@@ -70,14 +74,30 @@ export class Block {
   }
 
   copy({ block, element, modifier, mixed, subs, settings }) {
-    return new Block(
+    const instance = new Block(
       coalesce(block, this.block),
       coalesce(element, this.element),
       { ...coalesce(modifier, this.modifier) },
       [...coalesce(mixed, this.mixed)],
       [...coalesce(subs, this.subs)],
-      { ...coalesce(settings, this.settings) }
+      { ...coalesce(settings, this.settings) },
+      this.cache
     )
+    const incache = this.cache.find(
+      item =>
+        instance.block === item.block &&
+        instance.element === item.element &&
+        shallowEqual(instance.modifier, item.modifier) &&
+        shallowEqual(instance.mixed, item.mixed) &&
+        shallowEqual(instance.subs, item.subs) &&
+        shallowEqual(instance.settings, item.settings)
+    )
+
+    if (incache) {
+      return incache
+    }
+    this.cache.push(instance)
+    return instance
   }
 
   generate() {
