@@ -1,3 +1,7 @@
+## [1.4.0](https://github.com/Kozea/redux-api-unrest/compare/v1.3.3...v1.4.0)
+
+* Preserve equality to avoid unnecessary re-render
+
 ## [1.3.3](https://github.com/Kozea/redux-api-unrest/compare/v1.3.2...v1.3.3)
 
 * Fix argument number for decorated class
