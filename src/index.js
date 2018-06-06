@@ -5,6 +5,7 @@ export const defaultSettings = {
   elementDelimiter: '__',
   modifierDelimiter: '--',
   modifierValueDelimiter: '-',
+  cache: true,
 }
 
 const coalesce = (...args) => args.find(arg => arg !== void 0)
@@ -82,19 +83,20 @@ export class Block {
       subs: [...coalesce(subs, this.subs)],
       settings: { ...coalesce(settings, this.settings) },
     }
+    if (this.settings.cache) {
+      const incache = this.cache.find(
+        oldArgs =>
+          newArgs.block === oldArgs.block &&
+          newArgs.element === oldArgs.element &&
+          shallowEqual(newArgs.modifier, oldArgs.modifier) &&
+          shallowEqual(newArgs.mixed, oldArgs.mixed) &&
+          shallowEqual(newArgs.subs, oldArgs.subs) &&
+          shallowEqual(newArgs.settings, oldArgs.settings)
+      )
 
-    const incache = this.cache.find(
-      oldArgs =>
-        newArgs.block === oldArgs.block &&
-        newArgs.element === oldArgs.element &&
-        shallowEqual(newArgs.modifier, oldArgs.modifier) &&
-        shallowEqual(newArgs.mixed, oldArgs.mixed) &&
-        shallowEqual(newArgs.subs, oldArgs.subs) &&
-        shallowEqual(newArgs.settings, oldArgs.settings)
-    )
-
-    if (incache) {
-      return incache
+      if (incache) {
+        return incache
+      }
     }
 
     const newInstance = new Block(
@@ -106,7 +108,9 @@ export class Block {
       newArgs.settings,
       this.cache
     )
-    this.cache.push(newInstance)
+    if (this.settings.cache) {
+      this.cache.push(newInstance)
+    }
     return newInstance
   }
 

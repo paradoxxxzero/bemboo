@@ -1,16 +1,20 @@
+### [1.4.1](https://github.com/Kozea/redux-api-unrest/compare/v1.4.0...v1.4.1)
+
+* Add option to disable cache in setting
+
 ## [1.4.0](https://github.com/Kozea/redux-api-unrest/compare/v1.3.3...v1.4.0)
 
 * Preserve equality to avoid unnecessary re-render
 
-## [1.3.3](https://github.com/Kozea/redux-api-unrest/compare/v1.3.2...v1.3.3)
+### [1.3.3](https://github.com/Kozea/redux-api-unrest/compare/v1.3.2...v1.3.3)
 
 * Fix argument number for decorated class
 
-## [1.3.2](https://github.com/Kozea/redux-api-unrest/compare/v1.3.1...v1.3.2)
+### [1.3.2](https://github.com/Kozea/redux-api-unrest/compare/v1.3.1...v1.3.2)
 
 * Upgrade dependencies
 
-## [1.3.1](https://github.com/Kozea/redux-api-unrest/compare/v1.3.0...v1.3.1)
+### [1.3.1](https://github.com/Kozea/redux-api-unrest/compare/v1.3.0...v1.3.1)
 
 * Protect function name setting since it can crash on old browsers
 

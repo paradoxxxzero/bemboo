@@ -410,4 +410,60 @@ describe('Block test', () => {
     ).toBeTruthy()
     /* eslint-enable no-self-compare */
   })
+  it('respects the no cache setting', () => {
+    const b = block('block', void 0, void 0, void 0, void 0, { cache: false })
+    /* eslint-disable no-self-compare */
+    expect(b === b).toBeTruthy()
+    expect(b === block('block')).toBeFalsy()
+    expect(b.toString() === b.toString()).toBeTruthy()
+    expect(b.toString() === block('block').toString()).toBeTruthy()
+    expect(b.e('element') === b.e('element')).toBeFalsy()
+    expect(b.e('element') === block('block').e('element')).toBeFalsy()
+    expect(
+      b.e('element').m({ modifier: true }) ===
+        b.e('element').m({ modifier: true })
+    ).toBeFalsy()
+    const b2 = block('block2')
+    expect(
+      b
+        .e('element')
+        .m({ modifier: true })
+        .mix(b2) ===
+        b
+          .e('element')
+          .m({ modifier: true })
+          .mix(b2)
+    ).toBeFalsy()
+    expect(
+      b
+        .e('element')
+        .m({ modifier: true })
+        .mix(b2.e('element2')) ===
+        b
+          .e('element')
+          .m({ modifier: true })
+          .mix(b2.e('element2'))
+    ).toBeFalsy()
+    expect(
+      b
+        .e('element')
+        .mix(b2)
+        .m({ modifier: true })
+        .sub('block__element--modifier') ===
+        b
+          .e('element')
+          .mix(b2)
+          .m({ modifier: true })
+          .sub('block__element--modifier')
+    ).toBeFalsy()
+    const b3 = blockMaker({
+      namespace: 'bemboo->',
+      cache: false,
+    })('block3')
+    expect(
+      b3.e('element').m({ modifier: true, mod: 'ifier' }) ===
+        b3.e('element').m({ modifier: true, mod: 'ifier' })
+    ).toBeFalsy()
+    /* eslint-enable no-self-compare */
+  })
 })
