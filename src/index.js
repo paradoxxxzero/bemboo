@@ -5,7 +5,43 @@ export const defaultSettings = {
   elementDelimiter: '__',
   modifierDelimiter: '--',
   modifierValueDelimiter: '-',
-  cache: true,
+}
+
+export const cache = { current: [] }
+
+export const resetCache = () => {
+  cache.current = []
+}
+
+export const disableCache = () => {
+  cache.current = null
+}
+
+export const create = (
+  block,
+  element = null,
+  modifier = {},
+  mixed = [],
+  subs = [],
+  settings = defaultSettings
+) => {
+  if (cache.current) {
+    const incache = cache.current.find(
+      oldArgs =>
+        block === oldArgs.block &&
+        element === oldArgs.element &&
+        shallowEqual(modifier, oldArgs.modifier) &&
+        shallowEqual(mixed, oldArgs.mixed) &&
+        shallowEqual(subs, oldArgs.subs) &&
+        shallowEqual(settings, oldArgs.settings)
+    )
+    if (incache) {
+      return incache
+    }
+  }
+  const newInstance = new Block(block, element, modifier, mixed, subs, settings)
+  cache.current && cache.current.push(newInstance)
+  return newInstance
 }
 
 const coalesce = (...args) => args.find(arg => arg !== void 0)
@@ -17,8 +53,7 @@ export class Block {
     modifier = {},
     mixed = [],
     subs = [],
-    settings = {},
-    cache = []
+    settings = defaultSettings
   ) {
     if (!block) {
       throw new Error('A block must be named')
@@ -29,7 +64,6 @@ export class Block {
     this.mixed = mixed
     this.subs = subs
     this.settings = { ...defaultSettings, ...settings }
-    this.cache = cache
     // We probably want to use a getter but compat and all
     this.s = this.generate()
   }
@@ -66,7 +100,7 @@ export class Block {
           .map(
             blockOrString =>
               typeof blockOrString === 'string'
-                ? new Block(blockOrString)
+                ? create(blockOrString)
                 : blockOrString
           )
           .filter(i => i),
@@ -75,43 +109,14 @@ export class Block {
   }
 
   copy({ block, element, modifier, mixed, subs, settings }) {
-    const newArgs = {
-      block: coalesce(block, this.block),
-      element: coalesce(element, this.element),
-      modifier: { ...coalesce(modifier, this.modifier) },
-      mixed: [...coalesce(mixed, this.mixed)],
-      subs: [...coalesce(subs, this.subs)],
-      settings: { ...coalesce(settings, this.settings) },
-    }
-    if (this.settings.cache) {
-      const incache = this.cache.find(
-        oldArgs =>
-          newArgs.block === oldArgs.block &&
-          newArgs.element === oldArgs.element &&
-          shallowEqual(newArgs.modifier, oldArgs.modifier) &&
-          shallowEqual(newArgs.mixed, oldArgs.mixed) &&
-          shallowEqual(newArgs.subs, oldArgs.subs) &&
-          shallowEqual(newArgs.settings, oldArgs.settings)
-      )
-
-      if (incache) {
-        return incache
-      }
-    }
-
-    const newInstance = new Block(
-      newArgs.block,
-      newArgs.element,
-      newArgs.modifier,
-      newArgs.mixed,
-      newArgs.subs,
-      newArgs.settings,
-      this.cache
+    return create(
+      coalesce(block, this.block),
+      coalesce(element, this.element),
+      { ...coalesce(modifier, this.modifier) },
+      [...coalesce(mixed, this.mixed)],
+      [...coalesce(subs, this.subs)],
+      { ...coalesce(settings, this.settings) }
     )
-    if (this.settings.cache) {
-      this.cache.push(newInstance)
-    }
-    return newInstance
   }
 
   generate() {
@@ -147,7 +152,7 @@ export class Block {
 export const wrapFunction = (fun, name, args) => {
   const wrapped = function(...fargs) {
     // eslint-disable-next-line no-invalid-this
-    return fun.apply(this, [new Block(name, ...args), ...fargs])
+    return fun.apply(this, [create(name, ...args), ...fargs])
   }
   // Try to set name on function (might crash on all browsers)
   try {
@@ -159,7 +164,7 @@ export const wrapFunction = (fun, name, args) => {
 }
 
 export const wrapClass = (fun, name, args) => {
-  const b = new Block(name, ...args)
+  const b = create(name, ...args)
   fun.prototype.b = b
   const { render } = fun.prototype
   fun.prototype.render = function(...cargs) {
@@ -188,7 +193,7 @@ const block = (...args) => {
     }
     return wrapFunction(fun, name, extra)
   }
-  return new Block(...args)
+  return create(...args)
 }
 
 export const blockMaker = settings => (...args) => {

@@ -1,4 +1,10 @@
-import block, { Block, blockMaker } from '../src'
+import block, {
+  Block,
+  blockMaker,
+  cache,
+  disableCache,
+  resetCache,
+} from '../src'
 
 describe('Block test', () => {
   it('generates block class name in all the different usage', () => {
@@ -339,80 +345,134 @@ describe('Block test', () => {
     ).toEqual('block block--modifier mix mix--modifier')
   })
   it('preserves equality', () => {
-    const b = block('block')
     /* eslint-disable no-self-compare */
+    resetCache()
+    expect(cache.current).toHaveLength(0)
+    const b = block('block') // 1
+    expect(cache.current).toHaveLength(1)
     expect(b === b).toBeTruthy()
-    expect(b === block('block')).toBeFalsy()
+    expect(b === block('block')).toBeTruthy()
     expect(b.toString() === b.toString()).toBeTruthy()
     expect(b.toString() === block('block').toString()).toBeTruthy()
-    expect(b.e('element') === b.e('element')).toBeTruthy()
-    expect(b.e('element') === block('block').e('element')).toBeFalsy()
+    expect(b.e('element') === b.e('element')).toBeTruthy() // 2
+    expect(cache.current).toHaveLength(2)
+    expect(b.e('element') === block('block').e('element')).toBeTruthy()
     expect(
       b.e('element').m({ modifier: true }) ===
         b.e('element').m({ modifier: true })
-    ).toBeTruthy()
-    const b2 = block('block2')
+    ).toBeTruthy() // 3
+    expect(cache.current).toHaveLength(3)
+    const b2 = block('block2') // 4
+    expect(cache.current).toHaveLength(4)
     expect(
       b
         .e('element')
         .m({ modifier: true })
-        .mix(b2) ===
+        .mix(b2) === // 5
         b
           .e('element')
           .m({ modifier: true })
           .mix(b2)
     ).toBeTruthy()
+    expect(cache.current).toHaveLength(5)
     expect(
       b
         .e('element')
         .m({ modifier: true })
-        .mix(b2.e('element2')) ===
+        .mix(b2.e('element2')) === // 6, 7
         b
           .e('element')
           .m({ modifier: true })
-          .mix(b2.e('element2'))
+          .mix(block('block2').e('element2'))
     ).toBeTruthy()
+    expect(cache.current).toHaveLength(7)
     expect(
       b
         .e('element')
-        .mix(b2)
-        .m({ modifier: true })
-        .sub('block__element--modifier') ===
+        .mix(b2) // 8
+        .m({ modifier: true }) // 9, 10
+        .sub('block__element--modifier') === // 11
         b
           .e('element')
-          .mix(b2)
+          .mix(block('block2'))
           .m({ modifier: true })
           .sub('block__element--modifier')
     ).toBeTruthy()
+    expect(cache.current).toHaveLength(11)
     const b3 = blockMaker({
       namespace: 'bemboo->',
-    })('block3')
+    })('block3') // 12
+    expect(cache.current).toHaveLength(12)
     expect(
-      b3.e('element').m({ modifier: true, mod: 'ifier' }) ===
+      b3.e('element').m({ modifier: true, mod: 'ifier' }) === // 13, 14
         b3.e('element').m({ modifier: true, mod: 'ifier' })
     ).toBeTruthy()
+    expect(cache.current).toHaveLength(14)
     const b4 = block('block4', void 0, void 0, void 0, void 0, {
       elementDelimiter: '@',
       modifierDelimiter: '#',
       modifierValueDelimiter: '/',
-    })
+    }) // 15
+    expect(cache.current).toHaveLength(15)
     expect(
       b4
-        .e('element')
-        .mix(b2)
-        .m({ modifier: true })
-        .sub('block2@element#modifier') ===
+        .e('element') // 16
+        .mix(b2) // 17
+        .m({ modifier: true }) // 18
+        .sub('block2@element#modifier') === // 19
         b4
           .e('element')
           .mix(b2)
           .m({ modifier: true })
           .sub('block2@element#modifier')
     ).toBeTruthy()
-    /* eslint-enable no-self-compare */
+    expect(cache.current).toHaveLength(19)
+    expect(
+      block('block5') // 20
+        .e('element') // 21
+        .mix('mix') // 22, 23
+        .m({ modifier: true }) // 24, 25
+        .sub('block6@element#modifier') === // 26
+        block('block5')
+          .e('element')
+          .mix('mix')
+          .m({ modifier: true })
+          .sub('block6@element#modifier')
+    ).toBeTruthy()
+    expect(cache.current).toHaveLength(26)
+    expect(cache.current.map(bemboo => bemboo.s)).toEqual([
+      'block',
+      'block__element',
+      'block__element block__element--modifier',
+      'block2',
+      'block__element block__element--modifier block2',
+      'block2__element2',
+      'block__element block__element--modifier block2__element2',
+      'block__element block2',
+      'block2 block2--modifier',
+      'block__element block__element--modifier block2 block2--modifier',
+      'block__element block2 block2--modifier',
+      'bemboo->block3',
+      'bemboo->block3__element',
+      'bemboo->block3__element bemboo->block3__element--modifier bemboo->block3__element--mod-ifier', // eslint-disable-line max-len
+      'block4',
+      'block4@element',
+      'block4@element block2',
+      'block4@element block4@element#modifier block2 block2--modifier',
+      'block4@element block4@element#modifier block2 block2--modifier',
+      'block5',
+      'block5__element',
+      'mix',
+      'block5__element mix',
+      'mix mix--modifier',
+      'block5__element block5__element--modifier mix mix--modifier',
+      'block5__element block5__element--modifier mix mix--modifier',
+    ])
   })
   it('respects the no cache setting', () => {
-    const b = block('block', void 0, void 0, void 0, void 0, { cache: false })
+    const b = block('block', void 0, void 0, void 0, void 0)
     /* eslint-disable no-self-compare */
+    disableCache()
     expect(b === b).toBeTruthy()
     expect(b === block('block')).toBeFalsy()
     expect(b.toString() === b.toString()).toBeTruthy()
@@ -464,6 +524,7 @@ describe('Block test', () => {
       b3.e('element').m({ modifier: true, mod: 'ifier' }) ===
         b3.e('element').m({ modifier: true, mod: 'ifier' })
     ).toBeFalsy()
+    resetCache()
     /* eslint-enable no-self-compare */
   })
 })
