@@ -1,6 +1,6 @@
 {
   "name": "bemboo",
-  "version": "1.4.1",
+  "version": "2.0.0",
   "description": "A bem generator based on objects for React 16 use.",
   "main": "lib/index.js",
   "repository": "https://github.com/paradoxxxzero/bemboo",
